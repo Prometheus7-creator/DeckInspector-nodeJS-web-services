@@ -192,6 +192,25 @@ const addSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   );
 };
 
+const addUpdateSubprojectMetaDataInProject = async (subProjectId, subProject) => {
+  const subProjectDataInParent = {
+    name: subProject.name,
+    type: "subproject",
+    url: subProject.url,
+    description: subProject.description,
+    isInvasive: subProject.isInvasive,
+    sequenceNo: subProject.sequenceNo !== undefined ? subProject.sequenceNo : null,
+  };
+  await ProjectDAO.addUpdateProjectChild(
+    subProject.parentid,
+    subProjectId,
+    subProjectDataInParent
+  );
+  console.log(
+    `Added subproject with id ${subProjectId} in project id ${subProject.parentid} successfully`
+  );
+};
+
 const removeSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   await ProjectDAO.removeProjectChild(subProject.parentid, subProjectId);
   console.log(
@@ -225,5 +244,6 @@ module.exports = {
   removeSubprojectMetaDataInProject,
   addRemoveSubProjectMetadataInProject,
   addUpdateLocationMetadataInParent,
-  addUpdateSectionMetadataFromParent
+  addUpdateSectionMetadataFromParent,
+  addUpdateSubprojectMetaDataInProject
 };
