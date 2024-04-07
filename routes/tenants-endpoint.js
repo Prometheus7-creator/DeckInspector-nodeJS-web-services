@@ -461,29 +461,35 @@ router.route('/:id/updatestoragedatadetails/')
         if (err) { res.status(err.status).send(err.message); }
         else {
             const user = result;
-                // Create token
-                const token = jwt.sign(
-                { user_id: user._id, email,company:companyIdentifier},
-                process.env.TOKEN_KEY,
-                {
-                expiresIn: "30d",
-                });
-                // save user token
-                user.token = token;
-            
-                // return new user
-                // res.status(201).json(user);
+            // Create token
+            const token = jwt.sign(
+            { user_id: user._id, email,company:companyIdentifier},
+            process.env.TOKEN_KEY,
+            {
+            expiresIn: "30d",
+            });
+            // save user token
+            user.token = token;
+        
+            TenantService.addUpdateAdmin(tenantId, req.body)
+            .then((result) => {
+              if (result.reason) {
+                return res.status(result.code).json(result);
+              }
+              if (result) {
+                return res.status(201).json(result);
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+              errResponse = new newErrorResponse(500, false, error);
+              return res.status(500).json(errResponse);
+            });
         }
 
     });
 
-      var result = await TenantService.addUpdateAdmin(tenantId, req.body);
-      if (result.reason) {
-        return res.status(result.code).json(result);
-      }
-      if (result) {
-        return res.status(201).json(result);
-      }
+      
     }
     catch (exception) {
       console.log(exception);
