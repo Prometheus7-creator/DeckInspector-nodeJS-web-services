@@ -154,7 +154,7 @@ const editSubProject = async (subProjectId,subproject) => {
                 //await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
                 //await updateParentHelper.addSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
 
-                await updateParentHelper.addRemoveSubProjectMetadataInProject(subProjectId,subProjectFromDB);
+                await updateParentHelper.addUpdateSubProjectMetadataInProject(subProjectId,subProjectFromDB);
                 return {
                     success: true,
                 };

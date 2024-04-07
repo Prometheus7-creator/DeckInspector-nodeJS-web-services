@@ -138,7 +138,7 @@ const removeSectionMetadataFromParent = async (sectionId, section) => {
     );
   }
 };
-const addUpdateSectionMetadataFromParent = async (sectionId,section)=>{
+const addUpdateSectionMetadataInParent = async (sectionId,section)=>{
   const sectionDataInParent = {
     _id:sectionId,
     name: section.name,
@@ -154,7 +154,7 @@ const addUpdateSectionMetadataFromParent = async (sectionId,section)=>{
   };
 
   if (section.parenttype == "project") {
-    await ProjectDAO.addChildInSingleLevelProject(
+    await ProjectDAO.addUpdateChildInSingleLevelProject (
       section.parentid,
       sectionId,
       sectionDataInParent
@@ -218,7 +218,7 @@ const removeSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   );
 };
 
-const addRemoveSubProjectMetadataInProject = async (subProjectId, subProject) => {
+const addUpdateSubProjectMetadataInProject = async (subProjectId, subProject) => {
   const subProjectDataInParent = {
     _id: subProject._id,
     name: subProject.name,
@@ -242,8 +242,8 @@ module.exports = {
   removeSectionMetadataFromParent,
   addSubprojectMetaDataInProject,
   removeSubprojectMetaDataInProject,
-  addRemoveSubProjectMetadataInProject,
+  addUpdateSubProjectMetadataInProject,
   addUpdateLocationMetadataInParent,
-  addUpdateSectionMetadataFromParent,
+  addUpdateSectionMetadataInParent,
   addUpdateSubprojectMetaDataInProject
 };
