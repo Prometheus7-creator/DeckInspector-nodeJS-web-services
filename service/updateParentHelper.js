@@ -242,8 +242,7 @@ module.exports = {
   removeSectionMetadataFromParent,
   addSubprojectMetaDataInProject,
   removeSubprojectMetaDataInProject,
-  addUpdateSubProjectMetadataInProject,
   addUpdateLocationMetadataInParent,
   addUpdateSectionMetadataInParent,
-  addUpdateSubprojectMetaDataInProject
+  addUpdateSubProjectMetadataInProject
 };
