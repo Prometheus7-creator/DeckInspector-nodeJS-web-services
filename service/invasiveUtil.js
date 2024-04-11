@@ -36,9 +36,9 @@ const markLocationInvasive = async (locationId) => {
       await LocationDAO.editLocation(locationId, location);
 
       //UMESH TODO -- to remove this code
-      await updateParentHelper.removeLocationFromParent(locationId, location);
-      await updateParentHelper.addLocationMetadataInParent(locationId, location);
-
+      // await updateParentHelper.removeLocationFromParent(locationId, location);
+      // await updateParentHelper.addLocationMetadataInParent(locationId, location);
+      await updateParentHelper.addUpdateLocationMetadataInParent(locationId,location);
       if (location.parenttype === "subproject") {
         await markSubProjectInvasive(location.parentid); // Assume parentId is available in location
       } else if (location.parenttype === "project") {
@@ -62,9 +62,9 @@ const markSubProjectInvasive = async (subProjectId) => {
       await SubProjectDAO.editSubProject(subProjectId, subProject);
 
       //UMESH TODO -- to remove this code
-      await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId, subProject);
-      await updateParentHelper.addSubprojectMetaDataInProject(subProjectId, subProject);
-
+      // await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId, subProject);
+      // await updateParentHelper.addSubprojectMetaDataInProject(subProjectId, subProject);
+      await updateParentHelper.addUpdateSubProjectMetadataInProject(subProjectId, subProject);
       if (subProject.parenttype === "project") {
         await markProjectInvasive(subProject.parentid); // Assume parentId is available in subProject
       }
@@ -156,7 +156,7 @@ const markSubProjectNonInvasive = async (subProjectId) => {
         await SubProjectDAO.editSubProject(subProjectId, subProject);
 
         // await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId, subProject);
-        await updateParentHelper.addUpdateSubprojectMetaDataInProject(subProjectId, subProject);
+        await updateParentHelper.addUpdateSubProjectMetadataInProject(subProjectId, subProject);
 
         if (subProject.parenttype == "project") {
           await markProjectNonInvasive(subProject.parentid);
