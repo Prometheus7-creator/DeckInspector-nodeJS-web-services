@@ -27,9 +27,13 @@ module.exports = {
     addTenantDiskSpace: async (id, space) => {
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { "allowedDiskSpace": space }});
     },
+
     addTenantUsedDiskSpace: async (id, space) => {
-        return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $inc: { "usedDiskSpace": +space }});
+        console.log("Image size:", space);
+        return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $inc: { 
+        "usedDiskSpace": +space }});
     },
+
     increaseTenantValidity: async (id, days) => {
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $inc: { validity: +days }});
     },
@@ -47,12 +51,17 @@ module.exports = {
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { isActive: isActive } });
     },
 
+    toggleShowFooterlogo: async (id, value) => {
+        return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { showFooterlogo: value } });
+    },
+
     deleteTenantPermanently: async (id) => {
         return await mongo.Tenants.deleteOne({ _id: new ObjectId(id) });
     }, 
     deleteTenant: async (id) => {
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { isDeleted: true }});
     },    
+
     updateAddIconsForTenant:async (id,iconsData)=>{
         try {
             return await mongo.Tenants.updateOne({ _id: new ObjectId(id)},{$set:{icons:iconsData}});
@@ -61,6 +70,7 @@ module.exports = {
         }
         
     },
+
     updateAdminDetails:async (id,adminDetails)=>{
         try {
             return await mongo.Tenants.updateOne({ _id: new ObjectId(id)},{$push:{adminDetails:adminDetails}});
@@ -69,6 +79,7 @@ module.exports = {
         }
         
     },
+    
     updateTenantLogo:async (id,logoURL)=>{
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id)},{$set:{"icons.logoUrl":logoURL}});
     },

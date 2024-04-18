@@ -28,6 +28,8 @@ router.route("/add").post(async function (req, res) {
       webUserCount,
       bothUserCount,
       endDate,
+      footerText,
+      showFooterlogo,
     } = req.body;
 
     // Validate user input
@@ -60,6 +62,8 @@ router.route("/add").post(async function (req, res) {
       reportCount: 0,
       imageCount: 0,
       companyIdentifier: `${name.toLowerCase()}.ondeckinspectors.com`,
+      footerText: footerText || "",
+      showFooterlogo: showFooterlogo || false, 
     };
 
     const companyName = await tenantsDAO.getTenantByCompanyIdentifier(
@@ -142,6 +146,7 @@ router.route("/:id").get(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router
   .route("/:id")
   .put(async function (req, res) {
@@ -164,6 +169,7 @@ router
         mobileUserCount: updateData.mobileUserCount,
         webUserCount: updateData.webUserCount,
         bothUserCount: updateData.bothUserCount,
+        footerText: updateData.footerText
       };
 
       var result = await TenantService.editTenant(tenantId, newTenant);
@@ -220,6 +226,25 @@ router.route("/:id/toggletenantstatus/:state").post(async function (req, res) {
     const state = req.params.state;
     const isActive = state == 1 ? true : false;
     var result = await TenantService.toggleAccessForTenant(tenantId, isActive);
+    if (result.reason) {
+      return res.status(result.code).json(result);
+    }
+    if (result) {
+      return res.status(201).json(result);
+    }
+  } catch (exception) {
+    errResponse = new newErrorResponse(500, false, exception);
+    return res.status(500).json(errResponse);
+  }
+});
+
+router.route("/:id/toggleShowFooterLogoStatus/:state").post(async function (req, res) {
+  try {
+    var errResponse;
+    const tenantId = req.params.id;
+    const state = req.params.state;
+    const value = state == 1 ? true : false;
+    var result = await TenantService.toggleShowFooterLogo(tenantId, value);
     if (result.reason) {
       return res.status(result.code).json(result);
     }
@@ -310,6 +335,7 @@ router.route("/:id/increasetenantusers/:count").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router.route("/:id/upserticons").post(async function (req, res) {
   try {
     var errResponse;
@@ -372,6 +398,7 @@ router.route("/:id/updatelogo").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router.route("/:id/updatewebsite").post(async function (req, res) {
   try {
     var errResponse;
@@ -390,6 +417,7 @@ router.route("/:id/updatewebsite").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router.route("/:id/updateexpenses").post(async function (req, res) {
   try {
     var errResponse;
@@ -408,6 +436,7 @@ router.route("/:id/updateexpenses").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router.route("/:id/addusedspace").post(async function (req, res) {
   try {
     var errResponse;
@@ -426,6 +455,7 @@ router.route("/:id/addusedspace").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+
 router.route("/:id/diskwarning").get(async function (req, res) {
   try {
     var errResponse;
@@ -478,7 +508,6 @@ router.route("/:id/registerAdmin").post(async function (req, res) {
           // save user token
           user.token = token;
 
-          // call addUpdateAdmin function
           TenantService.addUpdateAdmin(tenantId, req.body)
             .then((result) => {
               if (result.reason) {
@@ -496,13 +525,13 @@ router.route("/:id/registerAdmin").post(async function (req, res) {
         }
       }
     );
-
   } catch (exception) {
     console.log(exception);
     errResponse = new newErrorResponse(500, false, exception);
     return res.status(500).json(errResponse);
   }
 });
+
 
 
 // router.route('/addSuperUser')

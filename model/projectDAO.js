@@ -74,7 +74,7 @@ module.exports = {
     },
 
     removeProjectChild: async (projectId, childId) => {
-        console.log(projectId,childId);
+        //console.log(projectId,childId);
         return await mongo.Projects.updateOne({ _id: new ObjectId(projectId) }, {
             $pull: {
                 children: {
@@ -104,7 +104,14 @@ module.exports = {
             }
         });
    },
-
+   addUpdateChildInSingleLevelProject: async (projectId, childId,childData) => {
+    return await mongo.Projects.updateOne({ _id: new ObjectId(projectId),"sections._id":ObjectId(childId) }, {
+        $set: {
+            "sections.$": childData
+        }
+    },{upsert:true}
+    );
+},
    addUpdateProjectChild : async  (projectId, childId, childData)=>{
     return await mongo.Projects.findOneAndUpdate({_id:ObjectId(projectId),"children._id":ObjectId(childId)},
     {

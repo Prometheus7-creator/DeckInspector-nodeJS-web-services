@@ -149,7 +149,7 @@ const editSetion = async (sectionId, section) => {
       //   sectionId,
       //   sectionFromDB
       // );
-      await updateParentHelper.addUpdateSectionMetadataFromParent(
+      await updateParentHelper.addUpdateSectionMetadataInParent(
           sectionId,
           sectionFromDB
         );
