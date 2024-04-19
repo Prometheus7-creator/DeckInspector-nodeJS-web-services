@@ -13,111 +13,223 @@ require("dotenv").config();
 
 //#region Register user
 
+
 router.route('/register')
-.post( function(req, res)  {  
-try {
+.post(async function(req, res)  {  
+  try {
     // Get user input
-    const { first_name, last_name, email, password,username,access_type } = req.body;
+    const { first_name, last_name, email, password, username, access_type } = req.body;
 
     // Validate user input
-    if (!(email && password && first_name && last_name&&username)) {
-      res.status(400).send("All input is required");
-      return;
+    if (!(email && password && first_name && last_name && username)) {
+      return res.status(400).send("All input is required");
     }
-    var companyIdentifier = req.user.company;
-    
-    //check if the count is exceeding the limit
-    var tenant = Tenants.getTenantByCompanyIdentifier(companyIdentifier);
-    users.getAllUser(function(err,result){
-      if(err){
-        res.status(err.status).send(err.message);
-      }
-      else{
-        //console.debug(result);
-        var users  = result.users.filter(user => user.companyIdentifier && user.companyIdentifier === companyIdentifier);
-        //res.status(result.status).json(result.users);
-        switch(access_type) {
-          case "both":
-            if (tenant.bothUserCount<users.filter(user=>user.bothUserCount).length) {
-              res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
-            return; 
-            }
-            break;
-          case "mobile":
-            if (tenant.mobileUserCount<users.filter(user=>user.mobileUserCount).length) {
-              res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
-            return; 
-            }
-            break;
-          case "web":
-            if (tenant.webUserCount<users.filter(user=>user.webUserCount).length) {
-              res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
-            return; 
-            }
-            break;
-        }
-      }
-    });
-    
-    // check if user already exist
-    // Validate if user exist in our database
-    
-    users.getUser(email, async function (err, record) {
-  
-      if (record) {
-            res.status(409).send("User with this email already exist.");
-            return;
-      }else{
-        
-        users.getUserbyUsername(username, async function (err, record){
-          if (record){
-            res.status(409).send("Username already exist.");
-            return;
-          }
-          else{
-            //Encrypt user password
-            var encryptedPassword =  await bcrypt.hash(password, 10);
 
-            // Create user in our database
-            users.addUser({
-              first_name,
-              last_name,
-              username,
-              access_type,
-              companyIdentifier,      
-              email: email.toLowerCase(), // sanitize: convert email to lowercase
-              password: encryptedPassword,
-            },function(err,result){
-                if (err) { 
-                  res.status(err.status).send(err.message); 
-                }
-                else {
-                    const user = result;
-                    // Create token
-                    const token = jwt.sign(
-                    { 
-                      user_id: user._id, email, company: companyIdentifier
-                    },
-                    process.env.TOKEN_KEY,
-                    {
-                      expiresIn: "30d",
-                    });
-                    // save user token
-                    user.token = token          
-                    // return new user
-                    res.status(201).json(user);
-                }
-            });
-          }
-        })
-     }
-  });
+    // Get company identifier from the authenticated user
+    const companyIdentifier = req.user.company;
     
-  }catch (err) {
-    console.log(err);
+    // Check if the count is exceeding the limit
+    const tenant = await Tenants.getTenantByCompanyIdentifier(companyIdentifier);
+    const allUsers = await new Promise((resolve, reject) => {
+      users.getAllUser(function(err, result) {
+          resolve(result);
+      });
+    });
+    const filteredUsers = allUsers.users.filter(user => user.companyIdentifier === companyIdentifier);
+
+    switch(access_type) {
+      case "both":
+        if (tenant.Tenant.bothUserCount <= filteredUsers.filter(user => user.access_type === "both").length) {
+          return res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+        }
+        break;
+      case "mobile":
+        if (tenant.Tenant.mobileUserCount <= filteredUsers.filter(user => user.access_type === "mobile").length) {
+          return res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+        }
+        break;
+      case "web":
+        if (tenant.Tenant.webUserCount <= filteredUsers.filter(user => user.access_type === "web").length) {
+          return res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+        }
+        break;
+    }
+    
+    // Check if the user already exists
+    const existingUserByEmail = await new Promise((resolve, reject) => {
+      users.getUser(email, function(err, record) {
+          resolve(record);
+      });
+    });
+    if (existingUserByEmail) {
+      return res.status(409).send("User with this email already exists.");
+    }
+
+    const existingUserByUsername = await new Promise((resolve, reject) => {
+      users.getUserbyUsername(username, function(err, record) {
+          resolve(record);
+      });
+    });
+    if (existingUserByUsername) {
+      return res.status(409).send("Username already exists.");
+    }
+
+    // Encrypt user password
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    // Create user in the database
+    const newUser = await new Promise((resolve, reject) => {
+      users.addUser({
+        first_name,
+        last_name,
+        username,
+        access_type,
+        companyIdentifier,
+        email: email.toLowerCase(), // Convert email to lowercase
+        password: encryptedPassword,
+      }, function(err, result) {
+        if (err) {
+          console.error("Error adding new user:", err);
+          reject(err); // Reject with error in case of error
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    // Create token
+    const token = jwt.sign(
+      { 
+        user_id: newUser._id, 
+        email, 
+        company: companyIdentifier
+      },
+      process.env.TOKEN_KEY,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    // Save user token
+    newUser.token = token;
+
+    // Return new user
+    return res.status(201).json(newUser);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal Server Error");
   }
-  
 });
+
+
+// router.route('/register')
+// .post(async function(req, res)  {  
+// try {
+//     // Get user input
+//     const { first_name, last_name, email, password,username,access_type } = req.body;
+
+//     // Validate user input
+//     if (!(email && password && first_name && last_name&&username)) {
+//       res.status(400).send("All input is required");
+//       return;
+//     }
+//     var companyIdentifier = req.user.company;
+    
+//     //check if the count is exceeding the limit
+//     var tenant = await Tenants.getTenantByCompanyIdentifier(companyIdentifier);
+
+//     await users.getAllUser(function(err,result){
+//       if(err){
+//         res.status(err.status).send(err.message);
+//       }
+//       else{
+//         //console.debug(result);
+//         var users  = result.users.filter(user => user.companyIdentifier && user.companyIdentifier === companyIdentifier);
+        
+//         // console.log("Access type", access_type);
+
+//         switch(access_type) {
+//           case "both":
+//             if (tenant.Tenant.bothUserCount < users.filter(user => user.access_type === "both").length) {
+//               res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+//             return; 
+//             }
+//             break;
+//           case "mobile":
+//             if (tenant.Tenant.mobileUserCount < users.filter(user => user.access_type === "mobile").length) {
+//               res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+//             return; 
+//             }
+//             break;
+//           case "web":
+//             if (tenant.Tenant.webUserCount < users.filter(user => user.access_type === "web").length) {
+//               res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+//             return; 
+//             }
+//             break;
+//         }
+//       }
+//     });
+    
+//     // check if user already exist
+//     // Validate if user exist in our database
+    
+//     await users.getUser(email, async function (err, record) {
+  
+//       if (record) {
+//             res.status(409).send("User with this email already exist.");
+//             return;
+//       }else{
+        
+//         await users.getUserbyUsername(username, async function (err, record){
+//           if (record){
+//             res.status(409).send("Username already exist.");
+//             return;
+//           }
+//           else{
+//             //Encrypt user password
+//             var encryptedPassword =  await bcrypt.hash(password, 10);
+
+//             // Create user in our database
+//             await users.addUser({
+//               first_name,
+//               last_name,
+//               username,
+//               access_type,
+//               companyIdentifier,      
+//               email: email.toLowerCase(), // sanitize: convert email to lowercase
+//               password: encryptedPassword,
+//             },function(err,result){
+//                 if (err) { 
+//                   res.status(err.status).send(err.message); 
+//                 }
+//                 else {
+//                     const user = result;
+//                     // Create token
+//                     const token = jwt.sign(
+//                     { 
+//                       user_id: user._id, email, company: companyIdentifier
+//                     },
+//                     process.env.TOKEN_KEY,
+//                     {
+//                       expiresIn: "30d",
+//                     });
+//                     // save user token
+//                     user.token = token          
+//                     // return new user
+//                     res.status(201).json(user);
+//                 }
+//             });
+//           }
+//         })
+//      }
+//   });
+    
+//   }catch (err) {
+//     console.log(err);
+//   }
+  
+// });
 //#endregion
 
 //#region Login
