@@ -4,6 +4,7 @@ var mongo = require("../database/mongo");
 const Role = require("./role");
 const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
+const Tenants = require("../service/tenantService");
 
 var addUser = function (user, callback) {
   mongo.Users.insertOne(
@@ -200,88 +201,116 @@ var removeUser = async function (user, callback) {
   }
 };
 
-var registerAdmin = function (
-    first_name,
-    last_name,
-    username,
-    email,
-    password,
-    appSecret,
-    companyIdentifier,
-    callback
+var registerAdmin = async function (
+  first_name,
+  last_name,
+  username,
+  email,
+  password,
+  appSecret,
+  companyIdentifier,
+  callback
+) {
+  if (
+    !(email && password && first_name && last_name && username,
+    companyIdentifier)
   ) {
-    if (
-      !(email && password && first_name && last_name && username,
-      companyIdentifier)
-    ) {
-      var error1 = new Error("All input is required");
-      error1.status = 400;
-      callback(error1);
-      return;
-    }
-    if (appSecret !== process.env.APP_SECRET) {
-      var error1 = new Error(
-        "Please contact administrator to register as an Admin"
-      );
-      error1.status = 403;
-      callback(error1);
-      return;
-    }
-    // Check if user already exists by email
-    getUser(email, async function (err, recordByEmail) {
-      if (recordByEmail) {
-        var error1 = new Error("User with this email already exists. Please Login");
-        error1.status = 409;
-        callback(error1, null);
-        return;
-      } else {
-        // Check if username already exists
-        getUserbyUsername(username, async function (err, recordByUsername) {
-          if (recordByUsername) {
-            var error1 = new Error("Username already exists. Please choose a different username");
-            error1.status = 409;
-            callback(error1, null);
-            return;
-          } else {
-            var encryptedPassword = await bcrypt.hash(password, 10);
-  
-            // Create user in our database
-            addAdmin(
-              {
-                first_name,
-                last_name,
-                username,
-                companyIdentifier,
-                email: email.toLowerCase(), // sanitize: convert email to lowercase
-                password: encryptedPassword,
-              },
-              function (err, result) {
-                if (err) {
-                  callback(err, null);
-                } else {
-                  const user = result;
-                  // Create token
-                  const token = jwt.sign(
-                    { user_id: user._id, email },
-                    process.env.TOKEN_KEY,
-                    {
-                      expiresIn: "30d",
-                    }
-                  );
-                  // save user token
-                  user.token = token;
-  
-                  // return new user
-                  callback(null, user);
-                }
-              }
-            );
-          }
-        });
-      }
+    var error1 = new Error("All input is required");
+    error1.status = 400;
+    callback(error1);
+    return;
+  }
+
+  // Check if the count is exceeding the limit
+  const tenant = await Tenants.getTenantByCompanyIdentifier(companyIdentifier);
+  const allUsers = await new Promise((resolve, reject) => {
+    getAllUser(function (err, result) {
+      resolve(result);
     });
-  };
-  
+  });
+  const filteredUsers = allUsers.users.filter(
+    (user) => user.companyIdentifier === companyIdentifier
+  );
+
+  if (
+    tenant.Tenant.bothUserCount <=
+    filteredUsers.filter((user) => user.access_type === "both").length
+  ) {
+    // return res.status(409).send("Cannot add a new user, limit reached. Please contact system admin");
+    var error1 = new Error(
+      "Cannot add a new user, limit reached. Please contact system admin"
+    );
+    error1.status = 409;
+    callback(error1);
+    return;
+  }
+
+  if (appSecret !== process.env.APP_SECRET) {
+    var error1 = new Error(
+      "Please contact administrator to register as an Admin"
+    );
+    error1.status = 403;
+    callback(error1);
+    return;
+  }
+  // Check if user already exists by email
+  getUser(email, async function (err, recordByEmail) {
+    if (recordByEmail) {
+      var error1 = new Error(
+        "User with this email already exists. Please Login"
+      );
+      error1.status = 409;
+      callback(error1, null);
+      return;
+    } else {
+      // Check if username already exists
+      getUserbyUsername(username, async function (err, recordByUsername) {
+        if (recordByUsername) {
+          var error1 = new Error(
+            "Username already exists. Please choose a different username"
+          );
+          error1.status = 409;
+          callback(error1, null);
+          return;
+        } else {
+          var encryptedPassword = await bcrypt.hash(password, 10);
+
+          // Create user in our database
+          addAdmin(
+            {
+              first_name,
+              last_name,
+              username,
+              companyIdentifier,
+              email: email.toLowerCase(), // sanitize: convert email to lowercase
+              password: encryptedPassword,
+            },
+            function (err, result) {
+              if (err) {
+                callback(err, null);
+              } else {
+                const user = result;
+                // Create token
+                const token = jwt.sign(
+                  { user_id: user._id, email },
+                  process.env.TOKEN_KEY,
+                  {
+                    expiresIn: "30d",
+                  }
+                );
+                // save user token
+                user.token = token;
+
+                // return new user
+                callback(null, user);
+              }
+            }
+          );
+        }
+      });
+    }
+  });
+};
 
 function verifyToken(req, res, next) {
   //console.log('inside verifyToken');
