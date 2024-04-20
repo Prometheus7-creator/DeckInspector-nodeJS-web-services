@@ -150,10 +150,8 @@ const editSubProject = async (subProjectId,subproject) => {
             const subProjectFromDB = await subProjectDAO.findSubProjectById(subProjectId);
             if(subProjectFromDB)
             {
-                //this adding and removing results in sequence issue, as it pushes the data at bottom.
-                //await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
-                //await updateParentHelper.addSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
-
+                // await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
+                // await updateParentHelper.addSubprojectMetaDataInProject(subProjectId,subProjectFromDB);
                 await updateParentHelper.addUpdateSubProjectMetadataInProject(subProjectId,subProjectFromDB);
                 return {
                     success: true,

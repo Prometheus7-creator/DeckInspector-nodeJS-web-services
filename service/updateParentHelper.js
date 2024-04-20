@@ -71,7 +71,7 @@ const addUpdateLocationMetadataInParent = async (locationId,location)=>{
   if (location.parenttype == "subproject") {
     await subProjectDAO.addUpdateSubProjectChild(
       location.parentid,
-      ObjectId(locationId),
+      locationId,
       locationDataInParent
     );
     console.log(
@@ -88,9 +88,8 @@ const addUpdateLocationMetadataInParent = async (locationId,location)=>{
     );
   }
 };
-
 const addSectionMetadataInParent = async (sectionId, section) => {
-  const sectionDataInParent = {  
+  const sectionDataInParent = {
     name: section.name,
     conditionalassessment: section.conditionalassessment,
     visualreview: section.visualreview,
@@ -158,20 +157,20 @@ const addUpdateSectionMetadataInParent = async (sectionId,section)=>{
   if (section.parenttype == "project") {
     await ProjectDAO.addUpdateChildInSingleLevelProject (
       section.parentid,
-      ObjectId(sectionId),
+      sectionId,
       sectionDataInParent
     );
     console.log(
-      `Added/edited section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
+      `Added section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
     );
   } else {
     await LocationDAO.addUpdateLocationChild(
       section.parentid,
-      ObjectId(sectionId),
+      sectionId,
       sectionDataInParent
     );
     console.log(
-      `Added/edited section with id ${sectionId} in location id ${section.parentid} successfully`
+      `Added section with id ${sectionId} in location id ${section.parentid} successfully`
     );
   }
 };
@@ -194,10 +193,8 @@ const addSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   );
 };
 
-const addUpdateSubProjectMetadataInProject = async (subProjectId, subProject) => {
+const addUpdateSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   const subProjectDataInParent = {
-    
-    _id:ObjectId(subProjectId),
     name: subProject.name,
     type: "subproject",
     url: subProject.url,
@@ -207,11 +204,11 @@ const addUpdateSubProjectMetadataInProject = async (subProjectId, subProject) =>
   };
   await ProjectDAO.addUpdateProjectChild(
     subProject.parentid,
-    ObjectId(subProjectId),
+    subProjectId,
     subProjectDataInParent
   );
   console.log(
-    `Added/edited subproject with id ${subProjectId} in project id ${subProject.parentid} successfully`
+    `Added subproject with id ${subProjectId} in project id ${subProject.parentid} successfully`
   );
 };
 
@@ -221,6 +218,23 @@ const removeSubprojectMetaDataInProject = async (subProjectId, subProject) => {
     `Removed subproject with id ${subProjectId} in project successfully`
   );
 };
+
+const addUpdateSubProjectMetadataInProject = async (subProjectId, subProject) => {
+  const subProjectDataInParent = {
+    _id: ObjectId(subProject._id),
+    name: subProject.name,
+    type: "subproject",
+    url: subProject.url,
+    description: subProject.description,
+    isInvasive: subProject.isInvasive,
+    sequenceNo: subProject.sequenceNo !== undefined ? subProject.sequenceNo : null,
+  };
+
+  await ProjectDAO.addUpdateProjectChild(subProject.parentid,subProjectId ,subProjectDataInParent);
+  console.log(
+    `updated subproject meta data with id ${subProjectId} in project successfully`
+  );
+}
 
 module.exports = {
   addLocationMetadataInParent,

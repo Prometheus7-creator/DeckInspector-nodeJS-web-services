@@ -139,8 +139,6 @@ const editSetion = async (sectionId, section) => {
     const result = await SectionDAO.editSection(sectionId, section);
     if (result.modifiedCount === 1) {
       const sectionFromDB = await SectionDAO.getSectionById(sectionId);
-      //this approach is impacting the sequence.
-
       // await updateParentHelper.removeSectionMetadataFromParent(
       //   sectionId,
       //   sectionFromDB
@@ -150,9 +148,9 @@ const editSetion = async (sectionId, section) => {
       //   sectionFromDB
       // );
       await updateParentHelper.addUpdateSectionMetadataInParent(
-          sectionId,
-          sectionFromDB
-        );
+        sectionId,
+        sectionFromDB
+      );
       //if section is invasive ,it will mark entire parent hierarchy as invasive
       if (sectionFromDB.furtherinvasivereviewrequired) {
         await InvasiveUtil.markSectionInvasive(sectionId);

@@ -38,7 +38,7 @@ const markLocationInvasive = async (locationId) => {
       //UMESH TODO -- to remove this code
       // await updateParentHelper.removeLocationFromParent(locationId, location);
       // await updateParentHelper.addLocationMetadataInParent(locationId, location);
-      await updateParentHelper.addUpdateLocationMetadataInParent(locationId,location);
+      await updateParentHelper.addUpdateLocationMetadataInParent(locationId, location);
       if (location.parenttype === "subproject") {
         await markSubProjectInvasive(location.parentid); // Assume parentId is available in location
       } else if (location.parenttype === "project") {
@@ -124,8 +124,9 @@ const markLocationNonInvasive = async (locationid) => {
         location.isInvasive = false;
         await LocationDAO.editLocation(locationid, location);
         
-
+        
         // await updateParentHelper.removeLocationFromParent(locationid, location);
+        // await updateParentHelper.addLocationMetadataInParent(locationid, location);
         await updateParentHelper.addUpdateLocationMetadataInParent(locationid, location);
 
         if (location.parenttype == "subproject") {
@@ -156,8 +157,8 @@ const markSubProjectNonInvasive = async (subProjectId) => {
         await SubProjectDAO.editSubProject(subProjectId, subProject);
 
         // await updateParentHelper.removeSubprojectMetaDataInProject(subProjectId, subProject);
+        // await updateParentHelper.addSubprojectMetaDataInProject(subProjectId, subProject);
         await updateParentHelper.addUpdateSubProjectMetadataInProject(subProjectId, subProject);
-
         if (subProject.parenttype == "project") {
           await markProjectNonInvasive(subProject.parentid);
         }
