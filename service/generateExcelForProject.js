@@ -22,8 +22,8 @@ async function generateExcelForProject(projectId) {
         await addBuildingLocations(projectId, worksheet, headerMapping);
         await addBuildingApartments(projectId, worksheet, headerMapping);
     }
-
-    const excelFileName = path.join(__dirname, `${projectData.name}.xlsx`);
+    const cleanedFileName = projectData.name.replace(/[^\w\s]/g, '');
+    const excelFileName = path.join(__dirname, `${cleanedFileName}.xlsx`);
     await workbook.xlsx.writeFile(excelFileName);
     return excelFileName;
 }
