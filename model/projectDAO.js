@@ -8,7 +8,7 @@ module.exports = {
         return await mongo.Projects.insertOne(project);
     },
     getAllProjects: async () => {
-        return await mongo.Projects.find({}).limit(50).sort({"_id": -1}).toArray();
+        return await mongo.Projects.find({}).sort({"_id": -1}).toArray();
     },
     getProjectById: async (id) => {
         return await mongo.Projects.findOne({ _id: new ObjectId(id) }, {files: 0});
