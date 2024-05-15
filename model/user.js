@@ -7,12 +7,14 @@ var jwt = require("jsonwebtoken");
 const Tenants = require("../service/tenantService");
 
 var addUser = function (user, callback) {
+  // console.log("user: ", user);
   mongo.Users.insertOne(
     {
       username: user.username,
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
+      mobile: user.mobile,
       password: user.password,
       role: Role.User,
       access_type: user.access_type,
@@ -30,6 +32,7 @@ var addUser = function (user, callback) {
     }
   );
 };
+
 var addSuperUser = async function (user, callback) {
   var encryptedPassword = await bcrypt.hash(user.password, 10);
   mongo.SuperUsers.insertOne(
@@ -53,11 +56,13 @@ var addSuperUser = async function (user, callback) {
   );
 };
 var addAdmin = function (user, callback) {
+  // console.log("user: ", user);
   mongo.Users.insertOne(
     {
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
+      mobile: user.mobile,
       password: user.password,
       username: user.username,
       role: Role.Admin,
@@ -206,13 +211,15 @@ var registerAdmin = async function (
   last_name,
   username,
   email,
+  mobile,
   password,
   appSecret,
   companyIdentifier,
   callback
 ) {
+  // console.log("user.js-registerAdmin");
   if (
-    !(email && password && first_name && last_name && username,
+    !(email && password && first_name && mobile && last_name && username,
     companyIdentifier)
   ) {
     var error1 = new Error("All input is required");
@@ -281,6 +288,7 @@ var registerAdmin = async function (
               first_name,
               last_name,
               username,
+              mobile,
               companyIdentifier,
               email: email.toLowerCase(), // sanitize: convert email to lowercase
               password: encryptedPassword,

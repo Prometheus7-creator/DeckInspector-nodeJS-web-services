@@ -476,9 +476,10 @@ router.route("/:id/diskwarning").get(async function (req, res) {
 
 router.route("/:id/registerAdmin").post(async function (req, res) {
   try {
+    // console.log("tenant-endpoint");
     var errResponse;
     const tenantId = req.params.id;
-    const { first_name, last_name, username, email, companyIdentifier } =
+    const { first_name, last_name, username, email, mobile, companyIdentifier } =
       req.body;
 
     const { password, ...adminDetails } = req.body;
@@ -489,6 +490,7 @@ router.route("/:id/registerAdmin").post(async function (req, res) {
       last_name,
       username,
       email,
+      mobile,
       password,
       appSecret,
       companyIdentifier,
