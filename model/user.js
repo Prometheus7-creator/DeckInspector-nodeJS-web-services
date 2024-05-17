@@ -128,6 +128,30 @@ var getUserbyUsername = async function (username, callback) {
   }
   callback(null, result);
 };
+
+var getUserbyMobile = async function (mobile, callback) {
+  console.log("Mobile: ", mobile);
+  if (mobile === undefined) {
+    var error1 = new Error(
+      "getUser(). \nMessage: No User Found. mobile number undefined."
+    );
+    error1.status = 404;
+    callback(error1);
+    return;
+  }
+  var result = await mongo.Users.findOne({ mobile: mobile });
+
+  if (!result) {
+    var error1 = new Error(
+      "getUser(). \nMessage: No User Found. One Requested."
+    );
+    error1.status = 404;
+    callback(error1);
+    return;
+  }
+  callback(null, result);
+};
+
 var getSuperUserbyUsername = async function (username, callback) {
   if (username === undefined) {
     var error1 = new Error(
@@ -280,6 +304,18 @@ var registerAdmin = async function (
           callback(error1, null);
           return;
         } else {
+          const existingUserByMobile = await new Promise((resolve, reject) => {
+            users.getUserbyMobile(mobile, function (err, record) {
+              resolve(record);
+            });
+          });
+
+          console.log("Existing user:", existingUserByMobile);
+
+          if (existingUserByMobile) {
+            return res.status(409).send("Mobile number already in use.");
+          }
+
           var encryptedPassword = await bcrypt.hash(password, 10);
 
           // Create user in our database
@@ -346,6 +382,7 @@ module.exports = {
   getAllUser: getAllUser,
   removeUser: removeUser,
   getUserbyUsername,
+  getUserbyMobile,
   updateUser,
   registerAdmin,
   getSuperUserbyUsername,
