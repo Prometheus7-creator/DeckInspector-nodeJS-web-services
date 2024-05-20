@@ -8,7 +8,7 @@ module.exports = {
         return await mongo.Projects.insertOne(project);
     },
     getAllProjects: async () => {
-        return await mongo.Projects.find({}).limit(50).sort({"_id": -1}).toArray();
+        return await mongo.Projects.find({}).sort({"_id": -1}).toArray();
     },
     getProjectById: async (id) => {
         return await mongo.Projects.findOne({ _id: new ObjectId(id) }, {files: 0});
@@ -74,7 +74,7 @@ module.exports = {
     },
 
     removeProjectChild: async (projectId, childId) => {
-        console.log(projectId,childId);
+        //console.log(projectId,childId);
         return await mongo.Projects.updateOne({ _id: new ObjectId(projectId) }, {
             $pull: {
                 children: {
@@ -104,7 +104,14 @@ module.exports = {
             }
         });
    },
-
+   addUpdateChildInSingleLevelProject: async (projectId, childId,childData) => {
+    return await mongo.Projects.updateOne({ _id: new ObjectId(projectId),"sections._id":ObjectId(childId) }, {
+        $set: {
+            "sections.$": childData
+        }
+    },{upsert:true}
+    );
+},
    addUpdateProjectChild : async  (projectId, childId, childData)=>{
     return await mongo.Projects.findOneAndUpdate({_id:ObjectId(projectId),"children._id":ObjectId(childId)},
     {
@@ -113,5 +120,5 @@ module.exports = {
         }
     },{upsert:true}
     );
-}
+}    
 };
