@@ -97,7 +97,7 @@ const addSectionMetadataInParent = async (sectionId, section) => {
     isInvasive: section.furtherinvasivereviewrequired,
     visualsignsofleak: section.visualsignsofleak,
     isuploading: false,
-    count: section.images.length,
+    count: section.images ? section.images.length : 0,
     sequenceNo: section.sequenceNo !== undefined ? section.sequenceNo : null,
   };
 

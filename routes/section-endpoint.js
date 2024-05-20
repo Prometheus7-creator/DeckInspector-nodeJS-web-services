@@ -243,6 +243,43 @@ catch (exception) {
 }
 })
 
+router.route('/moveSection')
+.post(async function(req, res){
+  try{
+    const sectionId = req.body.sectionId;
+    const newParentId = req.body.newParentId;
+    //Get the section object by id
+    const result = await SectionService.getSectionById(sectionId);
+    if (result.reason) {
+      return res.status(result.code).json(result);
+    }
 
+    const section = result.section;
+    //Remove the section from the original parent
+    const isSectionRemoved = await SectionService.deleteSectionPermanently(sectionId);
+    if (isSectionRemoved.reason) {
+      return res.status(isSectionRemoved.code).json(isSectionRemoved);
+    }
+    if (isSectionRemoved) {
+      //update the section parent id with new parent id
+      section.parentid = new ObjectId(newParentId);
+      //add the section to the new parent
+      const isSectionAdded = await SectionService.addSection(section);    
+
+      if (isSectionAdded.reason) {
+        return res.status(isSectionAdded.code).json(isSectionAdded);
+      }
+      if (isSectionAdded) {
+        return res.status(201).json(isSectionAdded);
+      }
+    }
+
+  }
+  catch (exception){
+    console.log(exception);
+    const errResponse = new ErrorResponse(500, false, exception);
+    return res.status(500).json(errResponse);
+  }
+})
 
 module.exports = router ;
