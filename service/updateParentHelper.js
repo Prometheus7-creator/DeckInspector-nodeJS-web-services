@@ -1,6 +1,7 @@
 const ProjectDAO = require("../model/projectDAO");
 const subProjectDAO = require("../model/subProjectDAO");
 const LocationDAO = require("../model/locationDAO");
+const ObjectId = require('mongodb').ObjectId;
 
 const addLocationMetadataInParent = async (locationId, location) => {
   const locationDataInParent = {
@@ -58,7 +59,7 @@ const removeLocationFromParent = async (locationId, location) => {
 };
 const addUpdateLocationMetadataInParent = async (locationId,location)=>{
   const locationDataInParent = {
-    _id:locationId,
+    _id:ObjectId(locationId),
     name: location.name,
     type: location.type,
     url: location.url,
@@ -138,9 +139,9 @@ const removeSectionMetadataFromParent = async (sectionId, section) => {
     );
   }
 };
-const addUpdateSectionMetadataFromParent = async (sectionId,section)=>{
+const addUpdateSectionMetadataInParent = async (sectionId,section)=>{
   const sectionDataInParent = {
-    _id:sectionId,
+    _id:ObjectId(sectionId),
     name: section.name,
     conditionalassessment: section.conditionalassessment,
     visualreview: section.visualreview,
@@ -154,7 +155,7 @@ const addUpdateSectionMetadataFromParent = async (sectionId,section)=>{
   };
 
   if (section.parenttype == "project") {
-    await ProjectDAO.addChildInSingleLevelProject(
+    await ProjectDAO.addUpdateChildInSingleLevelProject (
       section.parentid,
       sectionId,
       sectionDataInParent
@@ -218,9 +219,9 @@ const removeSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   );
 };
 
-const addRemoveSubProjectMetadataInProject = async (subProjectId, subProject) => {
+const addUpdateSubProjectMetadataInProject = async (subProjectId, subProject) => {
   const subProjectDataInParent = {
-    _id: subProject._id,
+    _id: ObjectId(subProject._id),
     name: subProject.name,
     type: "subproject",
     url: subProject.url,
@@ -242,8 +243,7 @@ module.exports = {
   removeSectionMetadataFromParent,
   addSubprojectMetaDataInProject,
   removeSubprojectMetaDataInProject,
-  addRemoveSubProjectMetadataInProject,
   addUpdateLocationMetadataInParent,
-  addUpdateSectionMetadataFromParent,
-  addUpdateSubprojectMetaDataInProject
+  addUpdateSectionMetadataInParent,
+  addUpdateSubProjectMetadataInProject
 };
