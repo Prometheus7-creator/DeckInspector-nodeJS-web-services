@@ -248,6 +248,13 @@ router.route('/moveSection')
   try{
     const sectionId = req.body.sectionId;
     const newParentId = req.body.newParentId;
+
+    if (!(sectionId && newParentId)) {
+      const errResponse = new ErrorResponse(400,"Invalid move operation","");
+      res.status(400).json(errResponse);
+      return;
+    }
+
     //Get the section object by id
     const result = await SectionService.getSectionById(sectionId);
     if (result.reason) {
