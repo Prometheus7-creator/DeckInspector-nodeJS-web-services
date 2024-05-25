@@ -1,5 +1,6 @@
 "use strict";
 const ProjectDAO = require("../model/projectDAO");
+const ArchivedProjectDAO = require("../model/archivedProjectDAO");
 const LocationDAO = require("../model/locationDAO");
 const SubprojectService = require("../service/subProjectService");
 const LocationService = require("../service/locationService");
@@ -102,6 +103,37 @@ var deleteProjectPermanently = async function (projectId) {
   }
 };
 
+var archiveProject = async function(projectId){
+  try {
+    const result = await ProjectDAO.getProjectById(projectId);
+    if (result) {
+      const {_id,...resultnoId} = result;
+      var archivedProj = await ArchivedProjectDAO.addArchivedProject(resultnoId);
+      if (archivedProj.insertedId) {
+        //delete the project
+        const result = await ProjectDAO.deleteProjectPermanently(projectId);
+        if (result.deletedCount === 1) {
+        return {
+          success: true,
+         };
+        }else{
+          return {
+            code: 401,
+            success: false,
+            reason: "Failed to remove project.",
+          };
+        }
+      }    
+    }
+    return {
+      code: 401,
+      success: false,
+      reason: "No project found with the given ID",
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
 var getProjectsByUser = async function (username) {
   try {
     const result = await ProjectDAO.getProjectByAssignedToUserId(username);
@@ -285,5 +317,6 @@ module.exports = {
   unassignUserFromProject,
   getProjectByAssignedToUserId,
   getProjectsByNameCreatedOnIsCompletedAndDeleted,
-  toggleProjectstatus
+  toggleProjectstatus,
+  archiveProject
 };
