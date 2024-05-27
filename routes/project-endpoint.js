@@ -181,7 +181,7 @@ router.route('/:id')
       try {
         var errResponse;
         const projectId = req.params.id;
-        var result = await projectService.deleteProjectPermanently(projectId);
+        var result = await projectService.archiveProject(projectId);
         if (result.reason) {
           return res.status(result.code).json(result);
         }
@@ -216,27 +216,7 @@ router.route('/:id/assign')
       }
     });
 
-//Umesh TODO to rewmove this
-// router.route('/:id/toggleOfflineState/:state')
-//   .post(async function (req, res) {
-//     try {
-//       var errResponse;
-//       const projectId = req.params.id;
-//       const state = req.params.state;
-//       const isavailableoffline = state == 1 ? true : false;
-//       var result = await projects.updateProjectOfflineAvailabilityStatus(projectId, isavailableoffline);
-//       if (result.error) {
-//         res.status(result.error.code).json(result.error);
-//       }
-//       if (result.data) {
-//         //console.debug(result);                                          
-//         res.status(result.data.code).json(result.data);
-//       }
-//     } catch (error) {
-//       errResponse = new ErrorResponse(500, "Internal server error", error);
-//       res.status(500).json(errResponse);
-//     }
-//   });
+
 
 router.route('/:id/unassign')
     .post(async function (req, res) {
@@ -259,47 +239,7 @@ router.route('/:id/unassign')
     });
 
 
-//TODO : Umesh to remove these API's after confirming with Rohit
-// router.route('/:id/addchild')
-//   .post(async function (req, res) {
-//     try {
-//       var errResponse;
-//       const projectId = req.params.id;
-//       const { id, name, type } = req.body;
-//       var result = await projects.addRemoveChildren(projectId, true, { id, name, type });
-//       if (result.error) {
-//         res.status(result.error.code).json(result.error);
-//       }
-//       if (result.data) {
-//         //console.debug(result);                                          
-//         res.status(result.data.code).json(result.data);
-//       }
-//     } catch (error) {
-//       //res.status(500).send("Internal server error.");
-//       errResponse = new ErrorResponse(500, "Internal server error", error);
-//       res.status(500).json(errResponse);
-//     }
-//   });
 
-// router.route('/:id/removechild')
-//   .post(async function (req, res) {
-//     try {
-//       var errResponse;
-//       const projectId = req.params.id;
-//       const { id, name, type } = req.body;
-//       var result = await projects.addRemoveChildren(projectId, false, { id, name, type });
-//       if (result.error) {
-//         res.status(result.error.code).json(result.error);
-//       }
-//       if (result.data) {
-//         //console.debug(result);                                          
-//         res.status(result.data.code).json(result.data);
-//       }
-//     } catch (error) {
-//       errResponse = new ErrorResponse(500, "Internal server error", error);
-//       res.status(500).json(errResponse);
-//     }
-//   });
 
 router.route('/:id/toggleprojectstatus/:state')
     .post(async function (req, res) {
