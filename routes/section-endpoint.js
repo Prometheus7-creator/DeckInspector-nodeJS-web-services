@@ -5,6 +5,7 @@ const ErrorResponse = require('../model/error');
 var ObjectId = require('mongodb').ObjectId;
 const newErrorResponse = require('../model/newError');
 const SectionService = require("../service/sectionService");
+const sectionDAO = require('../model/sectionDAO');
 
 require("dotenv").config();
 
@@ -256,12 +257,12 @@ router.route('/moveSection')
     }
 
     //Get the section object by id
-    const result = await SectionService.getSectionById(sectionId);
-    if (result.reason) {
-      return res.status(result.code).json(result);
+    const result = await sectionDAO.getSectionById(sectionId);
+    if (!result) {
+      return res.status(result).json(result);
     }
 
-    const section = result.section;
+    const section = result;
     //Remove the section from the original parent
     const isSectionRemoved = await SectionService.deleteSectionPermanently(sectionId);
     if (isSectionRemoved.reason) {
