@@ -174,6 +174,37 @@ var getSuperUserbyUsername = async function (username, callback) {
   callback(null, result);
 };
 
+var updateSession = async function ( username,callback){
+  var result = await mongo.Users.updateOne({username:username}, {$set:{hasActiveSession:true}});
+  if (result.modifiedCount) {
+    callback(null, {
+      status: 201,
+      message: "User login session updated successfully.",
+    });
+  }else{
+    
+      callback(null, {
+        status: 409,
+        message: "Failed to update the user session details.",
+      });
+  }
+}
+
+var clearSession = async function ( username,callback){
+  var result = await mongo.Users.updateOne({username:username}, {$set:{hasActiveSession:false}});
+  if (result.modifiedCount) {
+    callback(null, {
+      status: 201,
+      message: "User login session cleared successfully.",
+    });
+  }else{
+    
+      callback(null, {
+        status: 409,
+        message: "Failed to update the user session details.",
+      });
+  }
+}
 var updateUser = async function (user, callback) {
   var result = await mongo.Users.updateOne(
     { username: user.username },
@@ -388,4 +419,6 @@ module.exports = {
   getSuperUserbyUsername,
   getSuperUser,
   addSuperUser,
+  updateSession,
+  clearSession
 };
