@@ -1,6 +1,5 @@
 "use strict";
 var ObjectId = require('mongodb').ObjectId;
-const { JsonWebTokenError } = require('jsonwebtoken');
 var mongo = require('../database/mongo');
 
 var updateImageURL = async function (id, imageUrl, lasteditedby, editedat, type, parenttype) {
