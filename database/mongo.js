@@ -29,7 +29,7 @@ var Connect = async function () {
         module.exports.Tenants = client.db(dbName).collection('Tenants');
         module.exports.SuperUsers = client.db(dbName).collection('SuperUsers');
         module.exports.ArchivedProjects = client.db(dbName).collection('ArchivedProjects');
-        module.exports.DynamicVisualSection = client.db(dbName).collection('_DynamicVisualSection');  
+        module.exports.DynamicVisualSection = client.db(dbName).collection('DynamicVisualSection');  
         module.exports.LocationsForms =  client.db(dbName).collection('LocationForms');
 
         console.log('Connected to MongoDB');
