@@ -5,7 +5,7 @@ const ErrorResponse = require('../model/error');
 var ObjectId = require('mongodb').ObjectId;
 const newErrorResponse = require('../model/newError');
 const LocationFormService = require('../service/locationFormService');
-
+const Tenants = require("../service/tenantService");
 
 require("dotenv").config();
 
@@ -16,12 +16,28 @@ var errResponse;
 // Get user input
 var { name, companyIdentifier,questions} = req.body;
 
+
 // Validate user input
 if (!(name&&companyIdentifier)) {
   errResponse = new ErrorResponse(400,"Name,companyIdentifier is required","");
   res.status(400).json(errResponse);
   return;
 }
+
+// Check if the count is exceeding the limit
+const tenant = await Tenants.getTenantByCompanyIdentifier(
+    companyIdentifier
+    );
+if (!tenant.success) {
+    errResponse = new ErrorResponse(402, "Invalid tenant identifier.", ex);
+    res.status(402).json(errResponse);
+    return;
+}
+if (!(tenant.allowedCustomFormCount-tenant.customFormCount>0)) {
+    errResponse = new ErrorResponse(402, "Custom Form limit reached, please contact administrator.", ex);
+    res.status(402).json(errResponse);
+  return;
+}  
 try{
   var newLocationForm = {
       "name":name,
@@ -41,6 +57,7 @@ if (result.reason) {
 }
 if (result) {
   //console.debug(result);
+  Tenants.addCustomFormCount(tenant._id);
   return res.status(201).json(result);
 }
 }
