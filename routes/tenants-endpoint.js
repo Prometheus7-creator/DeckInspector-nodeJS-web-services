@@ -56,7 +56,7 @@ router.route("/add").post(async function (req, res) {
       mobileUserCount: mobileUserCount === undefined ? 0 : mobileUserCount,
       webUserCount: webUserCount === undefined ? 0 : webUserCount,
       bothUserCount: bothUserCount === undefined ? 0 : bothUserCount,
-
+      customFormCount :0,
       isActive: true,
       isDeleted: false,
       usedDiskSpace: 0,
