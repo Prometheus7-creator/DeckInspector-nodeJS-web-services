@@ -40,6 +40,9 @@ module.exports = {
     increaseTenantUsers: async (id, count) => {
         return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { allowedUsersCount: count }});
     },
+    increaseAllowedCustomForms: async (id, count) => {
+        return await mongo.Tenants.updateOne({ _id: new ObjectId(id) }, { $set: { allowedCustomFormCount: count }});
+    },
     updateStorageStats:async (identifier,count,size)=>{
         return await mongo.Tenants.updateOne({companyIdentifier:identifier},{$inc:{imageCount:+count,usedDiskSpace:+size}})
     },

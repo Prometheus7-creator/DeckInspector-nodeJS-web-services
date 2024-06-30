@@ -203,6 +203,23 @@ var increaseTenantUsers = async function (tenantId, count) {
     return handleError(error);
   }
 };
+var increaseAllowedCustomForms = async function (tenantId, count) {
+  try {
+    const result = await TenantDAO.increaseAllowedCustomForms(tenantId, count);
+    if (result.modifiedCount === 1) {
+      return {
+        success: true,
+      };
+    }
+    return {
+      code: 401,
+      success: false,
+      reason: "failed to increase allowedform count/or tenant not found.",
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
 var updateStorageStats = async function (companyIdentifier, count, fileSize) {
   try {
     const result = await TenantDAO.updateStorageStats(
@@ -452,6 +469,7 @@ module.exports = {
   addDiskSpace,
   increaseTenantValidity,
   increaseTenantUsers,
+  increaseAllowedCustomForms,
   updateAddIconsForTenant,
   updateTenantsAzureStorageDataDetails,
 

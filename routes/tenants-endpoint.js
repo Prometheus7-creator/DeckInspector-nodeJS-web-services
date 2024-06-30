@@ -29,6 +29,7 @@ router.route("/add").post(async function (req, res) {
       bothUserCount,
       endDate,
       footerText,
+      allowedCustomFormCount,
       showFooterlogo,
     } = req.body;
 
@@ -51,7 +52,7 @@ router.route("/add").post(async function (req, res) {
       website: website,
       endDate: endDate,
       allowedDiskSpace: allowedDiskSpace === undefined ? 10 : allowedDiskSpace,
-
+      allowedCustomFormCount:allowedCustomFormCount,
       mobileUserCount: mobileUserCount === undefined ? 0 : mobileUserCount,
       webUserCount: webUserCount === undefined ? 0 : webUserCount,
       bothUserCount: bothUserCount === undefined ? 0 : bothUserCount,
@@ -335,7 +336,24 @@ router.route("/:id/increasetenantusers/:count").post(async function (req, res) {
     return res.status(500).json(errResponse);
   }
 });
+router.route("/:id/increasecustomformcount/:count").post(async function (req, res) {
+  try {
+    var errResponse;
+    const tenantId = req.params.id;
+    const count = req.params.count;
 
+    var result = await TenantService.increaseAllowedCustomForms(tenantId, count);
+    if (result.reason) {
+      return res.status(result.code).json(result);
+    }
+    if (result) {
+      return res.status(201).json(result);
+    }
+  } catch (exception) {
+    errResponse = new newErrorResponse(500, false, exception);
+    return res.status(500).json(errResponse);
+  }
+});
 router.route("/:id/upserticons").post(async function (req, res) {
   try {
     var errResponse;
