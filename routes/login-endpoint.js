@@ -33,7 +33,7 @@ router.route("/login").post(async function (req, res) {
   // our login logic goes here
   try {
     // Get user input
-    const { username, password,isMobile } = req.body;
+    const { username, password,isMobile,deviceId } = req.body;
 
     // Validate user input
     if (!(username && password)) {
@@ -55,26 +55,30 @@ router.route("/login").post(async function (req, res) {
           );
           if (loginAllowed.success) {
             if (!loginAllowed.allowLogin) {
-              res.status(401).send("Invalid Credentials");
+              res.status(401).send("Invalid Credentials,company is inactive.");
               return;
             }
+
           } else {
             res.status(401).send("Invalid Credentials");
             return;
           }
           //check user has a session is already on
           if (isMobile) {
-            if (user.hasActiveSession) {
-            res.status(401).send("User already logged in on different device, please logout and then login.");
-            return;
+            if (user.deviceId==null) {
+              users.updateDevideId(username,deviceId,function(err,result){
+                if (err) {
+                  console.log(err);
+                  res.status(500),send('internal server error');
+                }
+                });
             }else{
-              users.updateSession(username,function(err,result){
-              if (err) {
-                console.log(err);
-                res.status(500),send('internal server error');
-              }
-              });
+              if (user.deviceId!==deviceId) {
+                res.status(401).send("User is registerd with a different device, please contact administrator to unregister your device.");
+                return;
+              }  
             }
+            
           }
           const token = jwt.sign(
             {

@@ -173,7 +173,21 @@ var getSuperUserbyUsername = async function (username, callback) {
   }
   callback(null, result);
 };
-
+var updateDevideId = async function ( username,deviceId, callback){
+  var result = await mongo.Users.updateOne({username:username}, {$set:{deviceId:deviceId}});
+  if (result.modifiedCount) {
+    callback(null, {
+      status: 201,
+      message: "User device added successfully.",
+    });
+  }else{
+    
+      callback(null, {
+        status: 409,
+        message: "Failed to update the user device details.",
+      });
+  }
+}
 var updateSession = async function ( username,callback){
   var result = await mongo.Users.updateOne({username:username}, {$set:{hasActiveSession:true}});
   if (result.modifiedCount) {
@@ -420,5 +434,6 @@ module.exports = {
   getSuperUser,
   addSuperUser,
   updateSession,
-  clearSession
+  clearSession,
+  updateDevideId
 };
