@@ -3,6 +3,8 @@ const mongo = require('../database/mongo');
 
 module.exports = {
     addLocationForm: async (locationForm) => {
+        var updatedQuestions=locationForm.questions.map(obj => ({ ...obj, "_id": new ObjectId() }));
+        locationForm.questions=updatedQuestions;
         return await mongo.LocationsForms.insertOne(locationForm);
     },
     getAllLocationForms: async (companyIdentifier) => {
