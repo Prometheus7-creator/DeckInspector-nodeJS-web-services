@@ -33,11 +33,11 @@ if (!tenant.success) {
     res.status(402).json(errResponse);
     return;
 }
-if (!(tenant.allowedCustomFormCount-tenant.customFormCount>0)) {
-    errResponse = new ErrorResponse(402, "Custom Form limit reached, please contact administrator.", ex);
-    res.status(402).json(errResponse);
-  return;
-}  
+// if (!(tenant.allowedCustomFormCount-tenant.customFormCount>0)) {
+//     errResponse = new ErrorResponse(402, "Custom Form limit reached, please contact administrator.", ex);
+//     res.status(402).json(errResponse);
+//   return;
+// }  
 try{
   var newLocationForm = {
       "name":name,
