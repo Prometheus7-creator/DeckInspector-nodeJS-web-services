@@ -26,7 +26,7 @@ var getAllLocationForms = async function(companyIdentifier){
         if (result) {
           return {
             success: true,
-            projects: result,
+            forms: result,
           };
         }
         return {
