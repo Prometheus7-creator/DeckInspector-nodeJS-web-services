@@ -35,6 +35,7 @@ module.exports = {
     },
     
     addUpdateQuestionInLocationForm : async  (locationFormId, questionId, question)=>{
+         question._id= ObjectId(questionId);
         return await mongo.LocationsForms.findOneAndUpdate({_id:ObjectId(locationFormId),"questions._id":ObjectId(questionId)},
         {
             $set:{
