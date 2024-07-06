@@ -116,7 +116,25 @@ const addQuestionsInLoctionForm = async (locationFormId, questions)=>{
         return handleError(error);
       }
 }
-
+const addQuestionInLoctionForm = async (locationFormId, question)=>{
+  try {
+      const result = await LocationFormDAO.addQuestionToLocationForm(locationFormId,question);
+      if (result.modifiedCount=1) {
+        
+        return {
+          success: true,
+          
+        };
+      }
+      return {
+        code: 401,
+        success: false,
+        reason: "Failed to add question to the form.",
+      };
+    } catch (error) {
+      return handleError(error);
+    }
+}
 
 const removeQuestionFromLoctionForm = async (locationFormId, questionId)=>{
     try {
@@ -173,5 +191,6 @@ module.exports = {
   removeQuestionFromLoctionForm,
   addQuestionsInLoctionForm,
   editLocationForm,
-  getAllLocationForms
+  getAllLocationForms,
+  addQuestionInLoctionForm
 };

@@ -30,6 +30,18 @@ module.exports = {
             }
         });
     },
+    addQuestionToLocationForm: async (locationFormId, question) => {
+        //var updatedQuestion={...questions, "_id": new ObjectId() };
+        //question._id = ObjectId(question._id);
+        return await mongo.LocationsForms.updateOne({ _id:  ObjectId(locationFormId) }, {
+            $push: { 
+                questions: {
+                    
+                    ...question
+                }
+            }
+        });
+    },
     removeQuestionFromLocationForm : async (locationFormId, questionId) => {
         return await mongo.LocationsForms.updateOne({ _id:  ObjectId(locationFormId) }, { $pull: { questions: { "_id":  ObjectId(questionId) } } });
     },
