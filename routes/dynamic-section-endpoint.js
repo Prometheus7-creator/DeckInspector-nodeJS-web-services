@@ -16,7 +16,7 @@ var errResponse;
 // Get user input
 
 const { name,additionalconsiderations,
-  additionalconsiderationshtml,furtherinvasivereviewrequired,images,createdby,parentid,parenttype,unitUnavailable } = req.body;
+  additionalconsiderationshtml,furtherinvasivereviewrequired,images,createdby,parentid,parenttype,unitUnavailable, companyIdentifier } = req.body;
 
 // Validate user input
 if (!(name&&parentid)) {
@@ -28,7 +28,6 @@ var creationtime= (new Date(Date.now())).toISOString();
 var newSection = {
     "additionalconsiderations":additionalconsiderations,
     "additionalconsiderationshtml":additionalconsiderationshtml? additionalconsiderationshtml: "",
-    "conditionalassessment":conditionalassessment,
     "createdat":creationtime,
     "createdby":createdby,
     "editedat":creationtime,
@@ -39,7 +38,7 @@ var newSection = {
     "parenttype":parenttype,
     "images":images,
     "unitUnavailable": unitUnavailable,
-    "isuploading":false,
+    "companyIdentifier": companyIdentifier
 } 
 var result = await DynamicSectionService.addSection(newSection);    
 if (result.reason) {
