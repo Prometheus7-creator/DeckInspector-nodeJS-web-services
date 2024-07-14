@@ -7,6 +7,7 @@ var projectRouter = require("./routes/project-endpoint");
 var subprojectRouter = require("./routes/subproject-endpoint");
 var locationRouter = require("./routes/location-endpoint");
 var sectionRouter = require("./routes/section-endpoint");
+var dynamicSectionRouter = require("./routes/dynamic-section-endpoint");
 var invasivesectionRouter = require("./routes/invasivesection-endpoint");
 var conclusiveSectionRouter = require("./routes/conclusivesection-endpoint");
 var tenantRouter = require("./routes/tenants-endpoint");
@@ -26,6 +27,7 @@ module.exports = function(app) {
   app.use("/api/subproject", subprojectRouter);
   app.use("/api/location", locationRouter);
   app.use("/api/section", sectionRouter);
+  app.use("/api/dynamicsection", dynamicSectionRouter);
   app.use("/api/invasivesection", invasivesectionRouter);
   app.use("/api/conclusivesection", conclusiveSectionRouter);
   app.use("/api/tenants", authenticateToken,tenantRouter);
