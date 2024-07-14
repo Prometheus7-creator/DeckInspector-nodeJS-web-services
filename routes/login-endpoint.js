@@ -33,11 +33,88 @@ router.route("/login").post(async function (req, res) {
   // our login logic goes here
   try {
     // Get user input
-    const { username, password } = req.body;
+    const { username, password,isMobile,deviceId } = req.body;
 
     // Validate user input
     if (!(username && password)) {
       res.status(400).send("All input is required");
+      return;
+    }
+    // Validate if user exist in our database
+    users.getUserbyUsername(username, async function (err, record) {
+      if (err) {
+        res.status(err.status).send(err.message);
+      } else {
+        if (record && (await bcrypt.compare(password, record.password))) {
+          // Create token
+          const { password, ...user } = record;
+
+          //TODO check if that company is active and not marked for deletion.
+          var loginAllowed = await Tenants.isTenantActive(
+            user.companyIdentifier
+          );
+          if (loginAllowed.success) {
+            if (!loginAllowed.allowLogin) {
+              res.status(401).send("Invalid Credentials,company is inactive.");
+              return;
+            }
+
+          } else {
+            res.status(401).send("Invalid Credentials");
+            return;
+          }
+          //check user has a session is already on
+          if (isMobile) {
+            if (user.deviceId==null) {
+              users.updateDevideId(username,deviceId,function(err,result){
+                if (err) {
+                  console.log(err);
+                  res.status(500),send('internal server error');
+                }
+                });
+            }else{
+              if (user.deviceId!==deviceId) {
+                res.status(401).send("User is registerd with a different device, please contact administrator to unregister your device.");
+                return;
+              }  
+            }
+            
+          }
+          const token = jwt.sign(
+            {
+              user_id: record._id,
+              username,
+              company: record.companyIdentifier,
+            },
+            process.env.TOKEN_KEY,
+            {
+              expiresIn: "1d",
+            }
+          );
+
+          // save user token
+          user.token = token;
+
+          // user
+          res.status(201).json(user);
+          
+        } else res.status(401).send("Invalid Credentials");
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.route("/logout").post(async function (req, res) {
+  // our login logic goes here
+  try {
+    // Get user input
+    const { username, password } = req.body;
+
+    // Validate user input
+    if (!(username&& password)) {
+      res.status(400).send("username and password is required");
     }
     // Validate if user exist in our database
     users.getUserbyUsername(username, async function (err, record) {
@@ -61,24 +138,14 @@ router.route("/login").post(async function (req, res) {
             res.status(401).send("Invalid Credentials");
             return;
           }
-
-          const token = jwt.sign(
-            {
-              user_id: record._id,
-              username,
-              company: record.companyIdentifier,
-            },
-            process.env.TOKEN_KEY,
-            {
-              expiresIn: "1d",
-            }
-          );
-
-          // save user token
-          user.token = token;
-
-          // user
-          res.status(201).json(user);
+          
+            users.clearSession(username,function (err, result){
+              if (err) {
+                res.status(500).send("Server error");
+              }else{
+                res.status(result.status).send(result.message);
+              }
+            });
         } else res.status(401).send("Invalid Credentials");
       }
     });
@@ -86,6 +153,7 @@ router.route("/login").post(async function (req, res) {
     console.log(err);
   }
 });
+
 //#endregion
 
 router.route("/superlogin").post(async function (req, res) {

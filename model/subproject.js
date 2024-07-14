@@ -1,7 +1,5 @@
 "use strict";
 var ObjectId = require('mongodb').ObjectId;
-const { QueryCollectionFormat } = require('@azure/core-http');
-const { JsonWebTokenError } = require('jsonwebtoken');
 var mongo = require('../database/mongo');
 const user = require('./user');
 const Projects = require('./project');
