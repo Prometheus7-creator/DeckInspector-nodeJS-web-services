@@ -174,6 +174,88 @@ const addUpdateSectionMetadataInParent = async (sectionId,section)=>{
     );
   }
 };
+
+const addDynamicSectionMetadataInParent = async (sectionId, section) => {
+  const sectionDataInParent = {
+    name: section.name,
+    coverUrl: section.images ? section.images[0] : "",
+    furtherinvasivereviewrequired: section.furtherinvasivereviewrequired,
+    isInvasive: section.furtherinvasivereviewrequired,
+    isuploading: false,
+    count: section.images ? section.images.length : 0,
+    sequenceNo: section.sequenceNo !== undefined ? section.sequenceNo : null,
+  };
+
+  if (section.parenttype == "project") {
+    await ProjectDAO.addChildInSingleLevelProject(
+      section.parentid,
+      sectionId,
+      sectionDataInParent
+    );
+    console.log(
+      `Added section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
+    );
+  } else {
+    await LocationDAO.addLocationChild(
+      section.parentid,
+      sectionId,
+      sectionDataInParent
+    );
+    console.log(
+      `Added section with id ${sectionId} in location id ${section.parentid} successfully`
+    );
+  }
+};
+
+const removeDynamicSectionMetadataFromParent = async (sectionId, section) => {
+  if (section.parenttype == "project") {
+    await ProjectDAO.removeChildFromSingleLevelProject(
+      section.parentid,
+      sectionId
+    );
+    console.log(
+      `Removed section with id ${sectionId} from Project id ${section.parentid} for Single Level Project successfully`
+    );
+  } else {
+    await LocationDAO.removeLocationChild(section.parentid, sectionId);
+    console.log(
+      `Removed section with id ${sectionId} from location id ${section.parentid} successfully`
+    );
+  }
+};
+const addUpdateDynamicSectionMetadataInParent = async (sectionId,section)=>{
+  const sectionDataInParent = {
+    _id:ObjectId(sectionId),
+    name: section.name,
+    coverUrl: section.images ? section.images[0] : "",
+    furtherinvasivereviewrequired: section.furtherinvasivereviewrequired,
+    isInvasive: section.furtherinvasivereviewrequired,
+    isuploading: false,
+    count: section.images.length,
+    sequenceNo: section.sequenceNo !== undefined ? section.sequenceNo : null,
+  };
+
+  if (section.parenttype == "project") {
+    await ProjectDAO.addUpdateChildInSingleLevelProject (
+      section.parentid,
+      sectionId,
+      sectionDataInParent
+    );
+    console.log(
+      `Added section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
+    );
+  } else {
+    await LocationDAO.addUpdateLocationChild(
+      section.parentid,
+      sectionId,
+      sectionDataInParent
+    );
+    console.log(
+      `Added section with id ${sectionId} in location id ${section.parentid} successfully`
+    );
+  }
+};
+
 const addSubprojectMetaDataInProject = async (subProjectId, subProject) => {
   const subProjectDataInParent = {
     name: subProject.name,
@@ -241,9 +323,11 @@ module.exports = {
   removeLocationFromParent,
   addSectionMetadataInParent,
   removeSectionMetadataFromParent,
+  addDynamicSectionMetadataInParent,
+  removeDynamicSectionMetadataFromParent,
   addSubprojectMetaDataInProject,
   removeSubprojectMetaDataInProject,
   addUpdateLocationMetadataInParent,
-  addUpdateSectionMetadataInParent,
+  addUpdateDynamicSectionMetadataInParent,
   addUpdateSubProjectMetadataInProject
 };

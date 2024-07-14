@@ -13,10 +13,10 @@ const addSection = async (section) => {
   try {
     const result = await SectionDAO.addSection(section);
     if (result.insertedId) {
-      await updateParentHelper.addSectionMetadataInParent(result.insertedId, section);
+      await updateParentHelper.addDynamicSectionMetadataInParent(result.insertedId, section);
 
       //if section is invasive ,it will mark entire parent hierarchy as invasive
-      await InvasiveUtil.markSectionInvasive(result.insertedId);
+      await InvasiveUtil.markDynamicSectionInvasive(result.insertedId);
       return {
         success: true,
         id: result.insertedId,
@@ -36,7 +36,7 @@ var getSectionById = async function (sectionId) {
   try {
     const result = await SectionDAO.getSectionById(sectionId);
     if (result) {
-      transformData(result);
+      transformDynamicSectionData(result);
       return {
         success: true,
         section: result,
@@ -86,13 +86,13 @@ var deleteSectionPermanently = async function (sectionId) {
 
     if(section.parenttype == "project")
     {
-      await InvasiveUtil.markProjectNonInvasive(section.parentid);
+      await InvasiveUtil.markDynamicProjectNonInvasive(section.parentid);
     }
     else{
-      await InvasiveUtil.markLocationNonInvasive(section.parentid);
+      await InvasiveUtil.markDynamicLocationNonInvasive(section.parentid);
     }
     //Update Parent for the section
-    await updateParentHelper.removeSectionMetadataFromParent(sectionId, section);
+    await updateParentHelper.removeDynamicSectionMetadataFromParent(sectionId, section);
 
   
 
@@ -117,7 +117,7 @@ var getSectionsByParentId = async function (parentId) {
     const result = await SectionDAO.getSectionByParentId(parentId);
     if (result) {
       for (let section of result) {
-        transformData(section);
+        transformDynamicSectionData(section);
       }
       return {
         success: true,
@@ -140,7 +140,7 @@ const editSetion = async (sectionId, section) => {
     if (result.modifiedCount === 1) {
       const sectionFromDB = await SectionDAO.getSectionById(sectionId);
 
-      await updateParentHelper.addUpdateSectionMetadataInParent(
+      await updateParentHelper.addUpdateDynamicSectionMetadataInParent(
         sectionId,
         sectionFromDB
       );
@@ -149,10 +149,10 @@ const editSetion = async (sectionId, section) => {
         await InvasiveUtil.markSectionInvasive(sectionId);
       } else {
         if (sectionFromDB.parenttype == "project") {
-          await InvasiveUtil.markProjectNonInvasive(section.parentid);
+          await InvasiveUtil.markDynamicProjectNonInvasive(section.parentid);
         }
         else {
-          await InvasiveUtil.markLocationNonInvasive(section.parentid);
+          await InvasiveUtil.markDynamicLocationNonInvasive(section.parentid);
         }
       }
       return {
@@ -215,16 +215,8 @@ const handleError = (error) => {
   };
 };
 
-
-var transformData = function(section) {
-  section.visualreview = capitalizeWords(section.visualreview);
-  section.visualsignsofleak = capitalizeWords(convertBooleanToString(section.visualsignsofleak));
+var transformDynamicSectionData = function(section) {
   section.furtherinvasivereviewrequired = capitalizeWords(convertBooleanToString((section.furtherinvasivereviewrequired)));
-  section.conditionalassessment = capitalizeWords(section.conditionalassessment.toString());
-  section.eee = RatingMapping[section.eee];
-  section.lbc = RatingMapping[section.lbc];
-  section.awe = RatingMapping[section.awe];
-
 };
 
 var capitalizeWords = function (word) {
