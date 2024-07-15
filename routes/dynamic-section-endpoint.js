@@ -15,7 +15,7 @@ try{
 var errResponse; 
 // Get user input
 
-const { name,additionalconsiderations,
+const { name,additionalconsiderations, questions,
   additionalconsiderationshtml,furtherinvasivereviewrequired,images,createdby,parentid,parenttype,unitUnavailable, companyIdentifier } = req.body;
 
 // Validate user input
@@ -37,6 +37,7 @@ var newSection = {
     "parentid": new ObjectId(parentid),
     "parenttype":parenttype,
     "images":images,
+    "questions": questions,
     "unitUnavailable": unitUnavailable,
     "companyIdentifier": companyIdentifier
 } 
