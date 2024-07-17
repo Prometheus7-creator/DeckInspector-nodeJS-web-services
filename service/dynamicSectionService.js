@@ -7,10 +7,12 @@ const InvasiveUtil = require("./invasiveUtil.js");
 const ProjectDAO = require("../model/projectDAO.js");
 const updateParentHelper = require("./updateParentHelper.js");
 const RatingMapping  = require("../model/ratingMapping.js");
+var ObjectId = require('mongodb').ObjectId;
 
 
 const addSection = async (section) => {
   try {
+    section.questions.forEach(question => question._id = new ObjectId(question._id))
     const result = await SectionDAO.addSection(section);
     if (result.insertedId) {
       await updateParentHelper.addDynamicSectionMetadataInParent(result.insertedId, section);
