@@ -69,7 +69,7 @@ router.route("/login").post(async function (req, res) {
               users.updateDevideId(username,deviceId,function(err,result){
                 if (err) {
                   console.log(err);
-                  res.status(500),send('internal server error');
+                  res.status(500).send('internal server error');
                 }
                 });
             }else{
