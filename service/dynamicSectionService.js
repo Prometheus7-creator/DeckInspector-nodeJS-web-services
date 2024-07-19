@@ -138,6 +138,7 @@ var getSectionsByParentId = async function (parentId) {
 
 const editSetion = async (sectionId, section) => {
   try {
+    section.questions.forEach(question => question._id = new ObjectId(question._id))
     const result = await SectionDAO.editSection(sectionId, section);
     if (result.modifiedCount === 1) {
       const sectionFromDB = await SectionDAO.getSectionById(sectionId);
