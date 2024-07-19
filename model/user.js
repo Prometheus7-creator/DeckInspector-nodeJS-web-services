@@ -266,10 +266,10 @@ var removeUser = async function (user, callback) {
   if (result.deletedCount == 1) {
     callback(null, { status: 201, message: "User deleted successfully." });
   } else {
-    var error2 = new Error(
-      "Error occurred. Didn't remove user. " + err.message
+        var error2 = new Error(
+      "Error occurred. Didn't remove user. "
     );
-    error2.status = err.status;
+    error2.status = 500;
     callback(error2);
     return;
   }
