@@ -140,39 +140,45 @@ const removeSectionMetadataFromParent = async (sectionId, section) => {
   }
 };
 const addUpdateSectionMetadataInParent = async (sectionId,section)=>{
-  const sectionDataInParent = {
-    _id:ObjectId(sectionId),
-    name: section.name,
-    conditionalassessment: section.conditionalassessment,
-    visualreview: section.visualreview,
-    coverUrl: section.images ? section.images[0] : "",
-    furtherinvasivereviewrequired: section.furtherinvasivereviewrequired,
-    isInvasive: section.furtherinvasivereviewrequired,
-    visualsignsofleak: section.visualsignsofleak,
-    isuploading: false,
-    count: section.images.length,
-    sequenceNo: section.sequenceNo !== undefined ? section.sequenceNo : null,
-  };
-
-  if (section.parenttype == "project") {
-    await ProjectDAO.addUpdateChildInSingleLevelProject (
-      section.parentid,
-      sectionId,
-      sectionDataInParent
-    );
-    console.log(
-      `Added section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
-    );
-  } else {
-    await LocationDAO.addUpdateLocationChild(
-      section.parentid,
-      sectionId,
-      sectionDataInParent
-    );
-    console.log(
-      `Added section with id ${sectionId} in location id ${section.parentid} successfully`
-    );
+  try {
+    const sectionDataInParent = {
+      _id:ObjectId(sectionId),
+      name: section.name,
+      conditionalassessment: section.conditionalassessment,
+      visualreview: section.visualreview,
+      coverUrl: section.images ? section.images[0] : "",
+      furtherinvasivereviewrequired: section.furtherinvasivereviewrequired,
+      isInvasive: section.furtherinvasivereviewrequired,
+      visualsignsofleak: section.visualsignsofleak,
+      isuploading: false,
+      count: section.images.length,
+      sequenceNo: section.sequenceNo !== undefined ? section.sequenceNo : null,
+      editedAt: Date.now().toString()
+    };
+  
+    if (section.parenttype == "project") {
+      await ProjectDAO.addUpdateChildInSingleLevelProject (
+        section.parentid,
+        sectionId,
+        sectionDataInParent
+      );
+      console.log(
+        `Added/edited section with id ${sectionId} in Project id ${section.parentid} for Single Level Project successfully`
+      );
+    } else {
+      await LocationDAO.addUpdateLocationChild(
+        section.parentid,
+        sectionId,
+        sectionDataInParent
+      );
+      console.log(
+        `Added/edited section with id ${sectionId} in location id ${section.parentid} successfully`
+      );
+    }
+  } catch (error) {
+    console.log(error);
   }
+  
 };
 
 const addDynamicSectionMetadataInParent = async (sectionId, section) => {
@@ -331,5 +337,6 @@ module.exports = {
   removeSubprojectMetaDataInProject,
   addUpdateLocationMetadataInParent,
   addUpdateDynamicSectionMetadataInParent,
-  addUpdateSubProjectMetadataInProject
+  addUpdateSubProjectMetadataInProject,
+  addUpdateSectionMetadataInParent
 };
