@@ -105,16 +105,16 @@ router.route("/register").post(async function (req, res) {
       return res.status(409).send("Username already exists.");
     }
 
-    const existingUserByMobile = await new Promise((resolve, reject) => {
-      users.getUserbyMobile(mobile, function (err, record) {
-        resolve(record);
-      });
-    });
+    // const existingUserByMobile = await new Promise((resolve, reject) => {
+    //   users.getUserbyMobile(mobile, function (err, record) {
+    //     resolve(record);
+    //   });
+    // });
 
-    console.log("Existing user: ", existingUserByMobile);
-    if (existingUserByMobile) {
-      return res.status(409).send("Mobile number already in use.");
-    }
+    // console.log("Existing user: ", existingUserByMobile);
+    // if (existingUserByMobile) {
+    //   return res.status(409).send("Mobile number already in use.");
+    // }
 
     // Encrypt user password
     const encryptedPassword = await bcrypt.hash(password, 10);
